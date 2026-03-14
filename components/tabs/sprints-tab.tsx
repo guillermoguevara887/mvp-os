@@ -399,7 +399,7 @@ function TaskColumn({
   })
 
   return (
-    <div className="flex w-80 shrink-0 flex-col">
+    <div className="flex h-full w-80 shrink-0 flex-col overflow-hidden">
       <div className="mb-3 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={cn("h-2 w-2 rounded-full", columna.color)} />
@@ -417,7 +417,7 @@ function TaskColumn({
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 pr-2">
         <SortableContext
           items={tareas.map((t) => t.id)}
           strategy={verticalListSortingStrategy}
@@ -629,7 +629,7 @@ export function SprintsTab() {
 
   return (
     <>
-      <div className="flex h-full flex-col">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
         {/* Sprint Selector */}
         <div className="px-6 py-3">
           <div className="flex items-center gap-2">
@@ -688,7 +688,7 @@ export function SprintsTab() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
+          <div className="min-h-0 flex-1 overflow-x-auto p-4">
             <div className="flex h-full gap-4">
               {columnas.map((columna) => (
                 <TaskColumn
