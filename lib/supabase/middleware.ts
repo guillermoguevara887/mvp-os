@@ -33,6 +33,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // MODO DESARROLLO: Autenticación deshabilitada temporalmente
+  // Descomentar las líneas siguientes para habilitar la protección de rutas
+  
+  /*
   // Rutas protegidas - redirigir a login si no hay usuario
   const protectedPaths = ["/dashboard", "/projects", "/sprints"]
   const isProtectedPath = protectedPaths.some((path) =>
@@ -54,6 +58,7 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/"
     return NextResponse.redirect(url)
   }
+  */
 
   return supabaseResponse
 }
