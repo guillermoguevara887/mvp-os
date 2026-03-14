@@ -1,9 +1,13 @@
 "use client"
 
-import { Plus, FolderKanban, ChevronRight } from "lucide-react"
+import { Plus, FolderKanban, ChevronRight, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface Proyecto {
   id: string
@@ -16,6 +20,7 @@ interface AppSidebarProps {
   proyectoActivo: string | null
   onSeleccionarProyecto: (id: string) => void
   onNuevoProyecto: () => void
+  usuario?: SupabaseUser | null
 }
 
 export function AppSidebar({
@@ -23,7 +28,18 @@ export function AppSidebar({
   proyectoActivo,
   onSeleccionarProyecto,
   onNuevoProyecto,
+  usuario,
 }: AppSidebarProps) {
+  const router = useRouter()
+  const [cargandoLogout, setCargandoLogout] = useState(false)
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    setCargandoLogout(true)
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
+
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-sidebar">
       <div className="flex h-14 items-center border-b border-border px-4">
@@ -73,6 +89,43 @@ export function AppSidebar({
           ))}
         </div>
       </ScrollArea>
+
+      {/* Sección de usuario */}
+      {usuario && (
+        <div className="border-t border-border p-3">
+          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent">
+              {usuario.user_metadata?.avatar_url ? (
+                <img
+                  src={usuario.user_metadata.avatar_url}
+                  alt="Avatar"
+                  className="h-8 w-8 rounded-full"
+                />
+              ) : (
+                <User className="h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">
+                {usuario.user_metadata?.full_name || usuario.email?.split("@")[0]}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {usuario.email}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0"
+              onClick={handleLogout}
+              disabled={cargandoLogout}
+            >
+              <LogOut className="h-4 w-4 text-muted-foreground" />
+              <span className="sr-only">Cerrar sesión</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </aside>
   )
 }

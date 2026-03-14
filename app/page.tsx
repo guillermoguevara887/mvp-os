@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ProjectWorkspace } from "@/components/project-workspace"
 import { NewProjectDialog } from "@/components/new-project-dialog"
-import { FolderKanban, Sparkles, ArrowRight } from "lucide-react"
+import { FolderKanban, Sparkles, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 
 interface Proyecto {
   id: string
@@ -46,8 +48,38 @@ export default function HomePage() {
   const [proyectos, setProyectos] = useState<Proyecto[]>(proyectosIniciales)
   const [proyectoActivo, setProyectoActivo] = useState<string | null>(null)
   const [dialogoAbierto, setDialogoAbierto] = useState(false)
+  const [usuario, setUsuario] = useState<User | null>(null)
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    const obtenerUsuario = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUsuario(user)
+      setCargando(false)
+    }
+
+    obtenerUsuario()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUsuario(session?.user ?? null)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const proyectoSeleccionado = proyectos.find((p) => p.id === proyectoActivo)
+
+  if (cargando) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   const handleNuevoProyecto = (datos: {
     nombre: string
@@ -72,6 +104,7 @@ export default function HomePage() {
         proyectoActivo={proyectoActivo}
         onSeleccionarProyecto={setProyectoActivo}
         onNuevoProyecto={() => setDialogoAbierto(true)}
+        usuario={usuario}
       />
 
       <main className="flex-1 overflow-hidden">
