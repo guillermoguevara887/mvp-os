@@ -308,31 +308,31 @@ function TareaCard({
       {/* Color header strip - basado en estado/columna */}
       <div className={cn("h-1.5 w-full", colorEstado[tarea.estado])} />
       
-      <CardContent className="p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="text-sm font-medium leading-snug text-foreground">
+      <CardContent className="p-5 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <h4 className="text-base font-semibold leading-tight text-foreground">
             {tarea.titulo}
           </h4>
           <div
             {...attributes}
             {...listeners}
-            className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+            className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing shrink-0"
           >
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
         </div>
         
-        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
           {tarea.descripcion}
         </p>
 
         {/* Tags */}
         {tarea.tags && tarea.tags.length > 0 && (
-          <div className="mt-2.5 flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {tarea.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground"
+                className="inline-flex items-center rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
               >
                 {tag}
               </span>
@@ -340,21 +340,21 @@ function TareaCard({
           </div>
         )}
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center justify-between pt-1">
           <Badge
             variant="outline"
-            className={cn("text-[10px] font-medium", colorPrioridad[tarea.prioridad])}
+            className={cn("text-xs font-medium px-2.5 py-0.5", colorPrioridad[tarea.prioridad])}
           >
             {labelPrioridad[tarea.prioridad]}
           </Badge>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {tarea.promptAI && (
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-100">
-                <Sparkles className="h-3 w-3 text-purple-600" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-100">
+                <Sparkles className="h-4 w-4 text-purple-600" />
               </div>
             )}
             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+              <Pencil className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </div>
@@ -366,13 +366,13 @@ function TareaCard({
 // Tarjeta de overlay para drag
 function TareaOverlay({ tarea }: { tarea: Tarea }) {
   return (
-    <Card className="overflow-hidden rounded-xl border border-primary/30 bg-card shadow-2xl scale-105">
+    <Card className="overflow-hidden rounded-xl border border-primary/30 bg-card shadow-2xl scale-105 w-80">
       <div className={cn("h-1.5 w-full", colorEstado[tarea.estado])} />
-      <CardContent className="p-3.5">
-        <h4 className="text-sm font-medium leading-snug text-foreground">
+      <CardContent className="p-5 space-y-3">
+        <h4 className="text-base font-semibold leading-tight text-foreground">
           {tarea.titulo}
         </h4>
-        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
           {tarea.descripcion}
         </p>
       </CardContent>
