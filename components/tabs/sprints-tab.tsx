@@ -823,10 +823,10 @@ export function SprintsTab() {
 
       {/* Task Detail Sheet */}
       <Sheet open={!!tareaSeleccionada} onOpenChange={() => { setTareaSeleccionada(null); setModoEdicion(false) }}>
-        <SheetContent className="w-full border-border sm:max-w-lg">
+        <SheetContent className="flex h-full w-full flex-col border-border sm:max-w-lg">
           {tareaSeleccionada && (
-            <>
-              <SheetHeader>
+            <div className="flex h-full flex-col overflow-hidden">
+              <SheetHeader className="shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={cn("h-3 w-3 rounded-full", colorTipo[tareaSeleccionada.tipo])} />
@@ -919,7 +919,7 @@ export function SprintsTab() {
               </SheetHeader>
 
               {!modoEdicion && (
-                <div className="mt-6 space-y-6">
+                <div className="mt-6 flex-1 space-y-6 overflow-y-auto pr-2">
                   {tareaSeleccionada.tags && tareaSeleccionada.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {tareaSeleccionada.tags.map((tag) => (
@@ -993,7 +993,7 @@ export function SprintsTab() {
                   )}
                 </div>
               )}
-            </>
+            </div>
           )}
         </SheetContent>
       </Sheet>
