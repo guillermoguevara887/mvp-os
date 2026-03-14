@@ -824,6 +824,7 @@ export function SprintsTab() {
       {/* Task Detail Sheet */}
       <Sheet open={!!tareaSeleccionada} onOpenChange={() => { setTareaSeleccionada(null); setModoEdicion(false) }}>
         <SheetContent className="flex h-full w-full flex-col overflow-hidden border-border p-0 sm:max-w-lg">
+          <SheetTitle className="sr-only">Detalle de tarea</SheetTitle>
           {tareaSeleccionada && (
             <>
               {/* Fixed Header */}
