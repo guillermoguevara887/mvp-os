@@ -1,12 +1,12 @@
 "use client"
 
-import { Plus, FolderKanban, ChevronRight, LogOut, User } from "lucide-react"
+import { Plus, FolderKanban, ChevronRight, LogOut, User, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface Proyecto {
@@ -32,6 +32,22 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const router = useRouter()
   const [cargandoLogout, setCargandoLogout] = useState(false)
+  const [modoOscuro, setModoOscuro] = useState(true)
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark")
+    setModoOscuro(isDark)
+  }, [])
+
+  const toggleTema = () => {
+    const nuevoModo = !modoOscuro
+    setModoOscuro(nuevoModo)
+    if (nuevoModo) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -51,7 +67,7 @@ export function AppSidebar({
         </div>
       </div>
 
-      <div className="p-3">
+      <div className="p-3 space-y-2">
         <Button
           onClick={onNuevoProyecto}
           className="w-full justify-start gap-2"
@@ -59,6 +75,18 @@ export function AppSidebar({
         >
           <Plus className="h-4 w-4" />
           Nuevo Proyecto
+        </Button>
+        <Button
+          onClick={toggleTema}
+          className="w-full justify-start gap-2"
+          variant="ghost"
+        >
+          {modoOscuro ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+          {modoOscuro ? "Modo Claro" : "Modo Oscuro"}
         </Button>
       </div>
 
