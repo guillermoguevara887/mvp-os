@@ -379,6 +379,8 @@ export function SprintsTab() {
   const [dialogoEliminar, setDialogoEliminar] = useState(false)
   const [modoEdicion, setModoEdicion] = useState(false)
   const [tareaDragging, setTareaDragging] = useState<Tarea | null>(null)
+  const [dialogoCrearSprint, setDialogoCrearSprint] = useState(false)
+  const [formSprint, setFormSprint] = useState({ nombre: "", objetivo: "", resumen: "" })
 
   // Form state para crear/editar
   const [formTarea, setFormTarea] = useState({
@@ -512,35 +514,55 @@ export function SprintsTab() {
     setModoEdicion(true)
   }
 
+  const handleCrearSprint = () => {
+    if (!formSprint.nombre.trim()) return
+
+    const nuevoSprint: Sprint = {
+      id: `sprint-${Date.now()}`,
+      nombre: formSprint.nombre,
+      objetivo: formSprint.objetivo || "Sin objetivo definido",
+      resumen: formSprint.resumen || "Sin resumen",
+      tareas: [],
+    }
+
+    setSprints((prev) => [...prev, nuevoSprint])
+    setSprintActivo(nuevoSprint)
+    setDialogoCrearSprint(false)
+    setFormSprint({ nombre: "", objetivo: "", resumen: "" })
+  }
+
   return (
     <>
       <div className="flex h-full flex-col">
         {/* Sprint Selector */}
-        <div className="border-b border-border px-6 py-3">
-          <div className="flex items-center gap-1">
+        <div className="px-6 py-3">
+          <div className="flex items-center gap-2">
             {sprints.map((sprint) => (
               <button
                 key={sprint.id}
                 onClick={() => setSprintActivo(sprint)}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  "rounded-full border px-4 py-1.5 text-sm font-medium transition-all",
                   sprintActivo.id === sprint.id
-                    ? "bg-secondary text-secondary-foreground"
-                    : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
                 )}
               >
                 {sprint.nombre}
               </button>
             ))}
-            <Button variant="ghost" size="sm" className="ml-2 h-8 gap-1.5 text-muted-foreground">
+            <button
+              onClick={() => setDialogoCrearSprint(true)}
+              className="flex items-center gap-1.5 rounded-full border border-dashed border-border px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground"
+            >
               <Plus className="h-3.5 w-3.5" />
               Agregar Sprint
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Sprint Metadata */}
-        <div className="border-b border-border bg-card/50 px-6 py-4">
+        <div className="px-6 py-4">
           <div className="flex items-start gap-8">
             <div className="flex items-start gap-3">
               <Target className="mt-0.5 h-4 w-4 text-chart-1" />
@@ -919,6 +941,56 @@ export function SprintsTab() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Modal Crear Sprint */}
+      <Dialog open={dialogoCrearSprint} onOpenChange={setDialogoCrearSprint}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Crear Nuevo Sprint</DialogTitle>
+            <DialogDescription>
+              Agrega un nuevo sprint para organizar tus tareas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="sprint-nombre">Nombre del Sprint</Label>
+              <Input
+                id="sprint-nombre"
+                placeholder="Ej: Sprint 4"
+                value={formSprint.nombre}
+                onChange={(e) => setFormSprint({ ...formSprint, nombre: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sprint-objetivo">Objetivo</Label>
+              <Input
+                id="sprint-objetivo"
+                placeholder="Ej: Implementar autenticación"
+                value={formSprint.objetivo}
+                onChange={(e) => setFormSprint({ ...formSprint, objetivo: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sprint-resumen">Resumen (Opcional)</Label>
+              <Textarea
+                id="sprint-resumen"
+                placeholder="Descripción breve del sprint..."
+                value={formSprint.resumen}
+                onChange={(e) => setFormSprint({ ...formSprint, resumen: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogoCrearSprint(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCrearSprint} disabled={!formSprint.nombre.trim()}>
+              Crear Sprint
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
