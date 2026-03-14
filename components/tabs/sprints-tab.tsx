@@ -265,58 +265,60 @@ export function SprintsTab() {
         </div>
 
         {/* Kanban Board */}
-        <ScrollArea className="flex-1">
-          <div className="flex gap-4 p-6">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
+          <div className="flex h-full gap-4">
             {columnas.map((columna) => {
               const tareas = tareasPorEstado(columna.id)
               return (
-                <div key={columna.id} className="w-80 shrink-0">
-                  <div className="mb-3 flex items-center gap-2">
+                <div key={columna.id} className="flex w-72 shrink-0 flex-col">
+                  <div className="mb-3 flex shrink-0 items-center gap-2">
                     <div className={cn("h-2 w-2 rounded-full", columna.color)} />
                     <h3 className="text-sm font-medium text-foreground">{columna.nombre}</h3>
                     <span className="text-xs text-muted-foreground">{tareas.length}</span>
                   </div>
-                  <div className="flex flex-col gap-2.5">
-                    {tareas.map((tarea) => (
-                      <Card
-                        key={tarea.id}
-                        className="cursor-pointer border-border/60 bg-card transition-all hover:border-border hover:bg-accent/50"
-                        onClick={() => setTareaSeleccionada(tarea)}
-                      >
-                        <CardContent className="p-3.5">
-                          <h4 className="text-sm font-medium leading-snug text-foreground">
-                            {tarea.titulo}
-                          </h4>
-                          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                            {tarea.descripcion}
-                          </p>
-                          <div className="mt-3 flex items-center justify-between">
-                            <Badge
-                              variant="outline"
-                              className={cn("text-[10px] font-medium", colorPrioridad[tarea.prioridad])}
-                            >
-                              {labelPrioridad[tarea.prioridad]}
-                            </Badge>
-                            {tarea.promptAI && (
-                              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-chart-4/15">
-                                <Sparkles className="h-3 w-3 text-chart-4" />
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    {tareas.length === 0 && (
-                      <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border/60">
-                        <p className="text-xs text-muted-foreground">Sin tareas</p>
-                      </div>
-                    )}
-                  </div>
+                  <ScrollArea className="flex-1">
+                    <div className="flex flex-col gap-2.5 pr-2">
+                      {tareas.map((tarea) => (
+                        <Card
+                          key={tarea.id}
+                          className="cursor-pointer border-border/60 bg-card transition-all hover:border-border hover:bg-accent/50"
+                          onClick={() => setTareaSeleccionada(tarea)}
+                        >
+                          <CardContent className="p-3.5">
+                            <h4 className="text-sm font-medium leading-snug text-foreground">
+                              {tarea.titulo}
+                            </h4>
+                            <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                              {tarea.descripcion}
+                            </p>
+                            <div className="mt-3 flex items-center justify-between">
+                              <Badge
+                                variant="outline"
+                                className={cn("text-[10px] font-medium", colorPrioridad[tarea.prioridad])}
+                              >
+                                {labelPrioridad[tarea.prioridad]}
+                              </Badge>
+                              {tarea.promptAI && (
+                                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-chart-4/15">
+                                  <Sparkles className="h-3 w-3 text-chart-4" />
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                      {tareas.length === 0 && (
+                        <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border/60">
+                          <p className="text-xs text-muted-foreground">Sin tareas</p>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </div>
               )
             })}
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Task Detail Sheet */}
