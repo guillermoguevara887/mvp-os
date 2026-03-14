@@ -229,7 +229,14 @@ const sprintsIniciales: Sprint[] = [
   },
 ]
 
-// Colores de header por tipo de tarea
+// Colores de header por estado de tarea (columna)
+const colorEstado = {
+  "todo": "bg-red-400",
+  "in-progress": "bg-blue-400",
+  "done": "bg-green-400",
+}
+
+// Colores secundarios por tipo de tarea (para badge)
 const colorTipo = {
   feature: "bg-blue-500",
   ai: "bg-purple-500",
@@ -298,8 +305,8 @@ function TareaCard({
       )}
       onClick={onClick}
     >
-      {/* Color header strip */}
-      <div className={cn("h-1.5 w-full", colorTipo[tarea.tipo])} />
+      {/* Color header strip - basado en estado/columna */}
+      <div className={cn("h-1.5 w-full", colorEstado[tarea.estado])} />
       
       <CardContent className="p-3.5">
         <div className="flex items-start justify-between gap-2">
@@ -360,7 +367,7 @@ function TareaCard({
 function TareaOverlay({ tarea }: { tarea: Tarea }) {
   return (
     <Card className="overflow-hidden rounded-xl border border-primary/30 bg-card shadow-2xl scale-105">
-      <div className={cn("h-1.5 w-full", colorTipo[tarea.tipo])} />
+      <div className={cn("h-1.5 w-full", colorEstado[tarea.estado])} />
       <CardContent className="p-3.5">
         <h4 className="text-sm font-medium leading-snug text-foreground">
           {tarea.titulo}
