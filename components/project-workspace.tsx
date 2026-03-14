@@ -64,17 +64,17 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="definicion" className="m-0 h-full overflow-auto">
+        <div className="min-h-0 flex-1">
+          <TabsContent value="definicion" className="m-0 h-full overflow-y-auto">
             <DefinicionTab proyecto={proyecto} />
           </TabsContent>
           <TabsContent value="sprints" className="m-0 h-full overflow-hidden">
             <SprintsTab />
           </TabsContent>
-          <TabsContent value="docs" className="m-0 h-full overflow-auto">
+          <TabsContent value="docs" className="m-0 h-full overflow-y-auto">
             <DocsTab proyecto={proyecto} />
           </TabsContent>
-          <TabsContent value="api" className="m-0 h-full overflow-auto">
+          <TabsContent value="api" className="m-0 h-full overflow-y-auto">
             <ApiTab proyecto={proyecto} />
           </TabsContent>
         </div>
