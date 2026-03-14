@@ -22,8 +22,10 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragStartEvent,
   type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
@@ -357,7 +359,7 @@ function TareaCard({
 // Tarjeta de overlay para drag
 function TareaOverlay({ tarea }: { tarea: Tarea }) {
   return (
-    <Card className="overflow-hidden rounded-xl border border-primary/30 bg-card shadow-2xl">
+    <Card className="overflow-hidden rounded-xl border border-primary/30 bg-card shadow-2xl scale-105">
       <div className={cn("h-1.5 w-full", colorTipo[tarea.tipo])} />
       <CardContent className="p-3.5">
         <h4 className="text-sm font-medium leading-snug text-foreground">
@@ -368,6 +370,80 @@ function TareaOverlay({ tarea }: { tarea: Tarea }) {
         </p>
       </CardContent>
     </Card>
+  )
+}
+
+// Componente de columna droppable
+function TaskColumn({
+  columna,
+  tareas,
+  isDragging,
+  onAddTask,
+  onSelectTask,
+}: {
+  columna: { id: string; nombre: string; color: string }
+  tareas: Tarea[]
+  isDragging: boolean
+  onAddTask: () => void
+  onSelectTask: (tarea: Tarea) => void
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: columna.id,
+  })
+
+  return (
+    <div className="flex w-80 shrink-0 flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={cn("h-2 w-2 rounded-full", columna.color)} />
+          <h3 className="text-sm font-medium text-foreground">{columna.nombre}</h3>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {tareas.length}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={onAddTask}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <SortableContext
+          items={tareas.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div
+            ref={setNodeRef}
+            className={cn(
+              "flex min-h-[200px] flex-col gap-2.5 rounded-lg p-2 transition-all duration-200",
+              isOver && "bg-primary/10 ring-2 ring-primary/30 ring-inset",
+              isDragging && !isOver && "bg-muted/30"
+            )}
+          >
+            {tareas.map((tarea) => (
+              <TareaCard
+                key={tarea.id}
+                tarea={tarea}
+                onClick={() => onSelectTask(tarea)}
+              />
+            ))}
+            {tareas.length === 0 && (
+              <div className={cn(
+                "flex h-24 items-center justify-center rounded-lg border-2 border-dashed transition-colors",
+                isOver ? "border-primary/50 bg-primary/5" : "border-border/60"
+              )}>
+                <p className="text-xs text-muted-foreground">
+                  {isOver ? "Soltar aqui" : "Sin tareas"}
+                </p>
+              </div>
+            )}
+          </div>
+        </SortableContext>
+      </ScrollArea>
+    </div>
   )
 }
 
@@ -417,19 +493,32 @@ export function SprintsTab() {
     if (!over) return
 
     const tareaId = active.id as string
-    const overColumn = over.id as string
+    let targetColumn: string | null = null
 
-    // Check if dropping on a column
-    if (["todo", "in-progress", "done"].includes(overColumn)) {
-      const nuevasTareas = sprintActivo.tareas.map((t) =>
-        t.id === tareaId ? { ...t, estado: overColumn as Tarea["estado"] } : t
-      )
+    // Check if dropping directly on a column
+    if (["todo", "in-progress", "done"].includes(over.id as string)) {
+      targetColumn = over.id as string
+    } else {
+      // Dropping on another task - find which column that task is in
+      const tareaDestino = sprintActivo.tareas.find((t) => t.id === over.id)
+      if (tareaDestino) {
+        targetColumn = tareaDestino.estado
+      }
+    }
 
-      const nuevoSprint = { ...sprintActivo, tareas: nuevasTareas }
-      setSprintActivo(nuevoSprint)
-      setSprints((prev) =>
-        prev.map((s) => (s.id === sprintActivo.id ? nuevoSprint : s))
-      )
+    if (targetColumn) {
+      const tareaActual = sprintActivo.tareas.find((t) => t.id === tareaId)
+      if (tareaActual && tareaActual.estado !== targetColumn) {
+        const nuevasTareas = sprintActivo.tareas.map((t) =>
+          t.id === tareaId ? { ...t, estado: targetColumn as Tarea["estado"] } : t
+        )
+
+        const nuevoSprint = { ...sprintActivo, tareas: nuevasTareas }
+        setSprintActivo(nuevoSprint)
+        setSprints((prev) =>
+          prev.map((s) => (s.id === sprintActivo.id ? nuevoSprint : s))
+        )
+      }
     }
   }
 
@@ -594,66 +683,26 @@ export function SprintsTab() {
         >
           <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
             <div className="flex h-full gap-4">
-              {columnas.map((columna) => {
-                const tareas = tareasPorEstado(columna.id)
-                return (
-                  <div
-                    key={columna.id}
-                    id={columna.id}
-                    className="flex w-80 shrink-0 flex-col"
-                  >
-                    <div className="mb-3 flex shrink-0 items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={cn("h-2 w-2 rounded-full", columna.color)} />
-                        <h3 className="text-sm font-medium text-foreground">{columna.nombre}</h3>
-                        <span className="text-xs text-muted-foreground">{tareas.length}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        onClick={() => {
-                          setFormTarea({ titulo: "", descripcion: "", prioridad: "media", tipo: "feature", tags: "" })
-                          setDialogoCrear(columna.id)
-                        }}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <ScrollArea className="flex-1">
-                      <SortableContext
-                        items={tareas.map((t) => t.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div
-                          className={cn(
-                            "flex min-h-[200px] flex-col gap-2.5 rounded-lg p-1 pr-2 transition-colors",
-                            tareaDragging && "bg-secondary/30"
-                          )}
-                          id={columna.id}
-                        >
-                          {tareas.map((tarea) => (
-                            <TareaCard
-                              key={tarea.id}
-                              tarea={tarea}
-                              onClick={() => setTareaSeleccionada(tarea)}
-                            />
-                          ))}
-                          {tareas.length === 0 && !tareaDragging && (
-                            <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border/60">
-                              <p className="text-xs text-muted-foreground">Sin tareas</p>
-                            </div>
-                          )}
-                        </div>
-                      </SortableContext>
-                    </ScrollArea>
-                  </div>
-                )
-              })}
+              {columnas.map((columna) => (
+                <TaskColumn
+                  key={columna.id}
+                  columna={columna}
+                  tareas={tareasPorEstado(columna.id)}
+                  isDragging={!!tareaDragging}
+                  onAddTask={() => {
+                    setFormTarea({ titulo: "", descripcion: "", prioridad: "media", tipo: "feature", tags: "" })
+                    setDialogoCrear(columna.id)
+                  }}
+                  onSelectTask={setTareaSeleccionada}
+                />
+              ))}
             </div>
           </div>
 
-          <DragOverlay>
+          <DragOverlay dropAnimation={{
+            duration: 200,
+            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+          }}>
             {tareaDragging ? <TareaOverlay tarea={tareaDragging} /> : null}
           </DragOverlay>
         </DndContext>
