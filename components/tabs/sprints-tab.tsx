@@ -823,10 +823,11 @@ export function SprintsTab() {
 
       {/* Task Detail Sheet */}
       <Sheet open={!!tareaSeleccionada} onOpenChange={() => { setTareaSeleccionada(null); setModoEdicion(false) }}>
-        <SheetContent className="flex h-full w-full flex-col border-border sm:max-w-lg">
+        <SheetContent className="flex h-full w-full flex-col overflow-hidden border-border p-0 sm:max-w-lg">
           {tareaSeleccionada && (
-            <div className="flex h-full flex-col overflow-hidden">
-              <SheetHeader className="shrink-0">
+            <>
+              {/* Fixed Header */}
+              <div className="shrink-0 border-b border-border bg-background px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={cn("h-3 w-3 rounded-full", colorTipo[tareaSeleccionada.tipo])} />
@@ -860,7 +861,7 @@ export function SprintsTab() {
                   </div>
                 </div>
                 {modoEdicion ? (
-                  <div className="mt-2 space-y-3">
+                  <div className="mt-4 space-y-3">
                     <Input
                       value={formTarea.titulo}
                       onChange={(e) => setFormTarea({ ...formTarea, titulo: e.target.value })}
@@ -911,15 +912,16 @@ export function SprintsTab() {
                     </Button>
                   </div>
                 ) : (
-                  <>
-                    <SheetTitle className="text-lg">{tareaSeleccionada.titulo}</SheetTitle>
-                    <SheetDescription>{tareaSeleccionada.descripcion}</SheetDescription>
-                  </>
+                  <div className="mt-3">
+                    <h2 className="text-lg font-semibold text-foreground">{tareaSeleccionada.titulo}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">{tareaSeleccionada.descripcion}</p>
+                  </div>
                 )}
-              </SheetHeader>
+              </div>
 
+              {/* Scrollable Content */}
               {!modoEdicion && (
-                <div className="mt-6 flex-1 space-y-6 overflow-y-auto pr-2">
+                <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
                   {tareaSeleccionada.tags && tareaSeleccionada.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {tareaSeleccionada.tags.map((tag) => (
@@ -993,7 +995,7 @@ export function SprintsTab() {
                   )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </SheetContent>
       </Sheet>
