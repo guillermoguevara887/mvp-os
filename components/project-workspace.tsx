@@ -5,6 +5,7 @@ import { DefinicionTab } from "@/components/tabs/definicion-tab"
 import { SprintsTab } from "@/components/tabs/sprints-tab"
 import { DocsTab } from "@/components/tabs/docs-tab"
 import { ApiTab } from "@/components/tabs/api-tab"
+import { PromptsTab } from "@/components/tabs/prompts-tab"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -61,6 +62,12 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
             >
               API
             </TabsTrigger>
+            <TabsTrigger
+              value="prompts"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              Prompts
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -76,6 +83,9 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
           </TabsContent>
           <TabsContent value="api" className="m-0 h-full overflow-y-auto">
             <ApiTab proyecto={proyecto} />
+          </TabsContent>
+          <TabsContent value="prompts" className="m-0 h-full overflow-y-auto">
+            <PromptsTab />
           </TabsContent>
         </div>
       </Tabs>
