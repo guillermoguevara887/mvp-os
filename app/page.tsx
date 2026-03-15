@@ -74,7 +74,7 @@ export default function HomePage() {
         onNuevoProyecto={() => setDialogoAbierto(true)}
       />
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-y-auto">
         {proyectoSeleccionado ? (
           <ProjectWorkspace
             proyecto={proyectoSeleccionado}

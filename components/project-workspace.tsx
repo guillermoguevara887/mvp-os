@@ -5,6 +5,7 @@ import { DefinicionTab } from "@/components/tabs/definicion-tab"
 import { SprintsTab } from "@/components/tabs/sprints-tab"
 import { DocsTab } from "@/components/tabs/docs-tab"
 import { ApiTab } from "@/components/tabs/api-tab"
+import { PromptsTab } from "@/components/tabs/prompts-tab"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -35,47 +36,56 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
       </header>
 
       <Tabs defaultValue="definicion" className="flex flex-1 flex-col">
-        <div className="border-b border-border px-6">
-          <TabsList className="h-12 bg-transparent p-0">
+        <div className="px-6 py-3">
+          <TabsList className="inline-flex h-10 items-center justify-center gap-1 rounded-full bg-muted/50 p-1">
             <TabsTrigger
               value="definicion"
-              className="rounded-none border-b-2 border-transparent px-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
-              Definición
+              Definicion
             </TabsTrigger>
             <TabsTrigger
               value="sprints"
-              className="rounded-none border-b-2 border-transparent px-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               Sprints
             </TabsTrigger>
             <TabsTrigger
               value="docs"
-              className="rounded-none border-b-2 border-transparent px-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               Docs
             </TabsTrigger>
             <TabsTrigger
               value="api"
-              className="rounded-none border-b-2 border-transparent px-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               API
+            </TabsTrigger>
+            <TabsTrigger
+              value="prompts"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              Prompts
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="definicion" className="m-0 h-full overflow-auto">
+        <div className="min-h-0 flex-1">
+          <TabsContent value="definicion" className="m-0 h-full overflow-y-auto">
             <DefinicionTab proyecto={proyecto} />
           </TabsContent>
           <TabsContent value="sprints" className="m-0 h-full overflow-hidden">
             <SprintsTab />
           </TabsContent>
-          <TabsContent value="docs" className="m-0 h-full overflow-auto">
+          <TabsContent value="docs" className="m-0 h-full overflow-y-auto">
             <DocsTab proyecto={proyecto} />
           </TabsContent>
-          <TabsContent value="api" className="m-0 h-full overflow-auto">
+          <TabsContent value="api" className="m-0 h-full overflow-y-auto">
             <ApiTab proyecto={proyecto} />
+          </TabsContent>
+          <TabsContent value="prompts" className="m-0 h-full overflow-y-auto">
+            <PromptsTab />
           </TabsContent>
         </div>
       </Tabs>
