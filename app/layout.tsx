@@ -9,7 +9,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'MVPOS - Sistema de Gestión de Proyectos MVP',
   description: 'Transforma tus ideas en planes de ejecución MVP estructurados',
-  generator: 'v0.app',
+
   icons: {
     icon: [
       {
