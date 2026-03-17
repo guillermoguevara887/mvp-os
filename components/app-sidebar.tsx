@@ -4,6 +4,7 @@ import { Plus, FolderKanban, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { UserMenu } from "@/components/user-menu"
 
 interface Proyecto {
   id: string
@@ -75,6 +76,7 @@ export function AppSidebar({
           ))}
         </div>
       </ScrollArea>
+      <UserMenu />
     </aside>
   )
 }
