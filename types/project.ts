@@ -1,12 +1,9 @@
-
-
 export interface Proyecto {
   id: string
   nombre: string
   descripcion: string
-  estado: "activo" | "pausado" | "completado"
-  problema?: string
-  alcanceMvp?: string
-  arquitectura?: string
-  techStack?: string[]
+  tipo: string
+  user_id: string
+  created_at: string
 }
+

@@ -1,5 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -21,10 +24,43 @@ interface DefinicionTabProps {
 }
 
 export function DefinicionTab({ proyecto }: DefinicionTabProps) {
+  const supabase = createClient()
+
+  const [aiData, setAiData] = useState<any>(null)
+  const [loadingAI, setLoadingAI] = useState(true)
+
+  useEffect(() => {
+    async function fetchAI() {
+      if (!proyecto?.id) return
+
+      const { data, error } = await supabase
+        .from("project_ai_requests")
+        .select("*")
+        .eq("project_id", proyecto.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+
+      if (error) {
+        console.error("Error AI:", error.message)
+        setLoadingAI(false)
+        return
+      }
+
+      console.log("AI DATA:", data?.respuesta) // 👈 debug útil
+
+      setAiData(data?.respuesta)
+      setLoadingAI(false)
+    }
+
+    fetchAI()
+  }, [proyecto.id])
+
   return (
     <ScrollArea className="h-full">
       <div className="p-6">
         <div className="grid gap-6">
+
           {/* Problema */}
           <Card className="border-border bg-card">
             <CardHeader>
@@ -40,8 +76,9 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {proyecto.problema ||
-                  "Los desarrolladores y founders pierden tiempo valioso estructurando sus ideas de proyecto manualmente, sin una guía clara para definir el alcance del MVP o planificar los sprints de desarrollo."}
+                {loadingAI
+                  ? "Generando..."
+                  : aiData?.problem || "Sin datos aún"}
               </p>
             </CardContent>
           </Card>
@@ -60,24 +97,18 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
-                  Captura y almacenamiento de ideas de proyecto
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
-                  Generación automática de plan MVP
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
-                  Tablero Kanban para gestión de sprints
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
-                  Documentación del proyecto
-                </li>
-              </ul>
+              {loadingAI ? (
+                <p className="text-sm text-muted-foreground">Generando...</p>
+              ) : (
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {aiData?.features?.map((feature: string, i: number) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
 
@@ -97,16 +128,9 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
             <CardContent>
               <div className="rounded-lg border border-border bg-muted/50 p-4">
                 <pre className="text-xs text-muted-foreground">
-{`├── Frontend (Next.js App Router)
-│   ├── /app
-│   │   ├── page.tsx (Dashboard)
-│   │   └── /proyecto/[id]
-│   └── /components
-├── Backend (API Routes)
-│   └── /api
-│       ├── /proyectos
-│       └── /mvp/generar
-└── Base de Datos (PostgreSQL)`}
+                  {loadingAI
+                    ? "Generando..."
+                    : aiData?.architecture || "Sin datos aún"}
                 </pre>
               </div>
             </CardContent>
@@ -127,16 +151,24 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {(proyecto.techStack || ["Next.js", "React", "TypeScript", "Tailwind CSS", "shadcn/ui", "PostgreSQL", "Vercel"]).map(
-                  (tech) => (
+                {(aiData?.tech_stack ||
+                  proyecto.techStack || [
+                    "Next.js",
+                    "React",
+                    "TypeScript",
+                    "Tailwind CSS",
+                    "shadcn/ui",
+                    "PostgreSQL",
+                    "Vercel",
+                  ]).map((tech: string) => (
                     <Badge key={tech} variant="secondary" className="px-3 py-1">
                       {tech}
                     </Badge>
-                  )
-                )}
+                  ))}
               </div>
             </CardContent>
           </Card>
+
         </div>
       </div>
     </ScrollArea>
