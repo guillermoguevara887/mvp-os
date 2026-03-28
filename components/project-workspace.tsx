@@ -76,7 +76,7 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
             <DefinicionTab proyecto={proyecto} />
           </TabsContent>
           <TabsContent value="sprints" className="m-0 h-full overflow-hidden">
-            <SprintsTab />
+            <SprintsTab projectId={proyecto.id} />
           </TabsContent>
           <TabsContent value="docs" className="m-0 h-full overflow-y-auto">
             <DocsTab proyecto={proyecto} />

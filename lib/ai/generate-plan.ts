@@ -1,6 +1,6 @@
 import { buildPrompt } from "@/lib/ai/build-prompt"
 import { generateMVP } from "@/lib/ai/generate-mvp"
-import { safeParseJSON } from "@/lib/ai/safe-parse-json"
+import { safeParseJson } from "@/lib/ai/safe-parse-json"
 import { createClient } from "@/lib/supabase/client"
 
 const supabase = createClient()
@@ -23,7 +23,7 @@ export async function generarPlan(proyecto: {
   }
 
   // 3. parsear JSON
-  const parsed = safeParseJSON(rawResponse)
+  const parsed = safeParseJson(rawResponse)
 
   if (!parsed) {
     console.error("Respuesta inválida")
