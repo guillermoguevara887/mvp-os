@@ -38,7 +38,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4.1-mini"
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini"
 
 /* ================= DB HELPERS ================= */
 
@@ -79,12 +79,12 @@ async function getLatestProjectAiRequest(projectId: string) {
 /* ================= OPENAI ================= */
 
 async function callOpenAi(prompt: string): Promise<string> {
-  const response = await openai.responses.create({
+  const response = await openai.chat.completions.create({
     model: OPENAI_MODEL,
-    input: prompt,
+    messages: [{ role: "user", content: prompt }],
   })
 
-  const text = response.output_text
+  const text = response.choices[0].message.content
 
   if (!text) throw new Error("Empty AI response")
 
