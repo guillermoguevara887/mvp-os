@@ -7,16 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Target, Lightbulb, Layers, Code2 } from "lucide-react"
+import type { Proyecto } from "@/types/project"
 
-interface Proyecto {
-  id: string
-  nombre: string
-  descripcion: string
-  estado: "activo" | "pausado" | "completado"
-  problema?: string
-  alcanceMvp?: string
-  arquitectura?: string
-  techStack?: string[]
+interface AiMvpData {
+  problem?: string
+  features?: string[]
+  architecture?: string
+  tech_stack?: string[]
 }
 
 interface DefinicionTabProps {
@@ -26,7 +23,7 @@ interface DefinicionTabProps {
 export function DefinicionTab({ proyecto }: DefinicionTabProps) {
   const supabase = createClient()
 
-  const [aiData, setAiData] = useState<any>(null)
+  const [aiData, setAiData] = useState<AiMvpData | null>(null)
   const [loadingAI, setLoadingAI] = useState(true)
 
   useEffect(() => {
@@ -39,7 +36,7 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
         .eq("project_id", proyecto.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error("Error AI:", error.message)
@@ -151,8 +148,7 @@ export function DefinicionTab({ proyecto }: DefinicionTabProps) {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {(aiData?.tech_stack ||
-                  proyecto.techStack || [
+                {(aiData?.tech_stack ?? [
                     "Next.js",
                     "React",
                     "TypeScript",

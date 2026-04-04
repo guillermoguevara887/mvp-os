@@ -2,12 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
-interface Proyecto {
-  id: string
-  nombre: string
-  descripcion: string
-}
+import type { Proyecto } from "@/types/project"
 
 interface DocsTabProps {
   proyecto: Proyecto

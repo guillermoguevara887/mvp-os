@@ -8,17 +8,7 @@ import { ApiTab } from "@/components/tabs/api-tab"
 import { PromptsTab } from "@/components/tabs/prompts-tab"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-interface Proyecto {
-  id: string
-  nombre: string
-  descripcion: string
-  estado: "activo" | "pausado" | "completado"
-  problema?: string
-  alcanceMvp?: string
-  arquitectura?: string
-  techStack?: string[]
-}
+import type { Proyecto } from "@/types/project"
 
 interface ProjectWorkspaceProps {
   proyecto: Proyecto
@@ -82,7 +72,7 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
             <DocsTab proyecto={proyecto} />
           </TabsContent>
           <TabsContent value="api" className="m-0 h-full overflow-y-auto">
-            <ApiTab proyecto={proyecto} />
+            <ApiTab />
           </TabsContent>
           <TabsContent value="prompts" className="m-0 h-full overflow-y-auto">
             <PromptsTab />

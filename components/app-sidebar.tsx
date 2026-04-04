@@ -5,12 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { UserMenu } from "@/components/user-menu"
-
-interface Proyecto {
-  id: string
-  nombre: string
-  estado: "activo" | "pausado" | "completado"
-}
+import type { Proyecto } from "@/types/project"
 
 interface AppSidebarProps {
   proyectos: Proyecto[]

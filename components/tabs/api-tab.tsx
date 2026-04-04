@@ -6,15 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface Proyecto {
-  id: string
-  nombre: string
-}
-
-interface ApiTabProps {
-  proyecto: Proyecto
-}
-
 interface Endpoint {
   metodo: "GET" | "POST" | "PUT" | "DELETE"
   ruta: string
@@ -131,7 +122,7 @@ const colorMetodo = {
   DELETE: "bg-destructive/10 text-destructive border-destructive/20",
 }
 
-export function ApiTab({ proyecto }: ApiTabProps) {
+export function ApiTab() {
   const copiarAlPortapapeles = (texto: string) => {
     navigator.clipboard.writeText(texto)
   }

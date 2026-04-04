@@ -79,6 +79,25 @@ const columnas = [
   { id: "done", nombre: "Completado", color: "bg-green-500" },
 ] as const
 
+/* ================= API TYPES ================= */
+
+interface ApiTask {
+  id: string
+  title: string
+  description: string | null
+  task_type: string | null
+  priority: "high" | "medium" | "low" | null
+  acceptance_criteria: string | null
+}
+
+interface ApiSprint {
+  id: string
+  sprint_number: number
+  goal: string
+  summary: string
+  tasks: ApiTask[]
+}
+
 /* ================= MAPPERS ================= */
 
 function mapTipo(type: string): Tarea["tipo"] {
@@ -96,13 +115,13 @@ function mapTipo(type: string): Tarea["tipo"] {
   }
 }
 
-function mapBackendToUI(sprintsFromAPI: any[]): Sprint[] {
+function mapBackendToUI(sprintsFromAPI: ApiSprint[]): Sprint[] {
   return sprintsFromAPI.map((sprint) => ({
     id: sprint.id,
     nombre: `Sprint ${sprint.sprint_number}`,
     objetivo: sprint.goal,
     resumen: sprint.summary,
-    tareas: sprint.tasks.map((task: any) => ({
+    tareas: sprint.tasks.map((task: ApiTask) => ({
       id: task.id,
       titulo: task.title,
       descripcion: task.description || "",
