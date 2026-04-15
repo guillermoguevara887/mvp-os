@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DefinicionTab } from "@/components/tabs/definicion-tab"
 import { SprintsTab } from "@/components/tabs/sprints-tab"
@@ -16,6 +17,12 @@ interface ProjectWorkspaceProps {
 }
 
 export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) {
+  const [sprintResetKey, setSprintResetKey] = useState(0)
+
+  const handleTechStackChanged = () => {
+    setSprintResetKey((k) => k + 1)
+  }
+
   return (
     <div className="flex h-full flex-col">
       <header className="flex h-14 items-center justify-between border-b border-border px-6">
@@ -28,34 +35,19 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
       <Tabs defaultValue="definicion" className="flex flex-1 flex-col">
         <div className="px-6 py-3">
           <TabsList className="inline-flex h-10 items-center justify-center gap-1 rounded-full bg-muted/50 p-1">
-            <TabsTrigger
-              value="definicion"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
+            <TabsTrigger value="definicion" className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
               Definicion
             </TabsTrigger>
-            <TabsTrigger
-              value="sprints"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
+            <TabsTrigger value="sprints" className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
               Sprints
             </TabsTrigger>
-            <TabsTrigger
-              value="docs"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
+            <TabsTrigger value="docs" className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
               Docs
             </TabsTrigger>
-            <TabsTrigger
-              value="api"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
+            <TabsTrigger value="api" className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
               API
             </TabsTrigger>
-            <TabsTrigger
-              value="prompts"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
+            <TabsTrigger value="prompts" className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
               Prompts
             </TabsTrigger>
           </TabsList>
@@ -63,10 +55,10 @@ export function ProjectWorkspace({ proyecto, onCerrar }: ProjectWorkspaceProps) 
 
         <div className="min-h-0 flex-1">
           <TabsContent value="definicion" className="m-0 h-full overflow-y-auto">
-            <DefinicionTab proyecto={proyecto} />
+            <DefinicionTab proyecto={proyecto} onTechStackChanged={handleTechStackChanged} />
           </TabsContent>
           <TabsContent value="sprints" className="m-0 h-full overflow-hidden">
-            <SprintsTab projectId={proyecto.id} />
+            <SprintsTab key={sprintResetKey} projectId={proyecto.id} />
           </TabsContent>
           <TabsContent value="docs" className="m-0 h-full overflow-y-auto">
             <DocsTab proyecto={proyecto} />
