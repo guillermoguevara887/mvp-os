@@ -11,6 +11,8 @@ You are a senior startup CTO and product engineer.
 
 Your job is to convert an MVP definition into a structured execution plan using development sprints.
 
+IMPORTANT: Respond in the same language used in the project name and description below.
+
 Project:
 - Name: ${projectName}
 - Description: ${projectDescription}
