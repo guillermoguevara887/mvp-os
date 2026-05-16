@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sparkles, Pencil, Trash2, GripVertical, Plus, Target, AlignLeft, CheckCircle2 } from "lucide-react"
+import { Sparkles, Pencil, Trash2, GripVertical, Plus, Target, AlignLeft, CheckCircle2, ChevronDown } from "lucide-react"
 import { AddTaskDialog } from "@/components/tabs/sprints/add-task-dialog"
 import { cn } from "@/lib/utils"
 import {
@@ -19,6 +19,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   useDroppable,
@@ -162,12 +163,12 @@ function TareaCard({
         <CardContent className="p-3">
           <div className="flex items-start gap-2">
 
-            {/* Drag handle — único punto de arrastre */}
+            {/* Drag handle — siempre visible en mobile, hover en desktop */}
             <button
               ref={setActivatorNodeRef}
               {...attributes}
               {...listeners}
-              className="mt-0.5 cursor-grab touch-none text-muted-foreground/30 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+              className="mt-0.5 cursor-grab touch-none text-muted-foreground/50 transition-opacity active:cursor-grabbing sm:opacity-0 sm:group-hover:opacity-100"
               title="Mover"
             >
               <GripVertical className="h-4 w-4" />
@@ -232,12 +233,12 @@ function Columna({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-xl bg-muted/40 p-3 transition-colors",
+        "flex w-72 shrink-0 flex-col rounded-xl bg-muted/40 transition-colors",
         isOver && "bg-primary/5 ring-2 ring-primary/25"
       )}
     >
-      {/* Header columna */}
-      <div className="mb-3 flex items-center gap-2">
+      {/* Header fijo — no scrollea con las tareas */}
+      <div className="flex shrink-0 items-center gap-2 rounded-t-xl px-3 pb-2 pt-3">
         <span className={cn("h-2 w-2 rounded-full", col.color)} />
         <span className="text-sm font-medium">{col.nombre}</span>
         <span className="ml-auto rounded-full bg-background px-2 py-0.5 text-xs text-muted-foreground">
@@ -245,14 +246,16 @@ function Columna({
         </span>
       </div>
 
-      {/* Tareas */}
-      <SortableContext items={tareas.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex min-h-[60px] flex-col gap-2">
-          {tareas.map((t) => (
-            <TareaCard key={t.id} tarea={t} onEdit={onEdit} onDelete={onDelete} />
-          ))}
-        </div>
-      </SortableContext>
+      {/* Tareas con scroll propio */}
+      <div className="flex-1 overflow-y-auto px-3 pb-3">
+        <SortableContext items={tareas.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          <div className="flex min-h-[60px] flex-col gap-2">
+            {tareas.map((t) => (
+              <TareaCard key={t.id} tarea={t} onEdit={onEdit} onDelete={onDelete} />
+            ))}
+          </div>
+        </SortableContext>
+      </div>
     </div>
   )
 }
@@ -408,8 +411,15 @@ export function SprintsTab({ projectId }: { projectId: string }) {
 
   /* ===== DRAG & DROP ===== */
 
+  const [sprintInfoColapsado, setSprintInfoColapsado] = useState(false)
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 8 },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
@@ -627,12 +637,41 @@ export function SprintsTab({ projectId }: { projectId: string }) {
             ))}
           </div>
 
-          {/* Sprint header card */}
+          {/* Sprint header card — colapsable en mobile */}
           {sprintActivo && (
-            <div className="mx-4 mb-3 rounded-xl border border-border bg-card p-4 shadow-sm md:mx-6 md:mb-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-1 flex-col gap-3 min-w-0">
-                  {/* Objetivo */}
+            <div className="mx-4 mb-3 rounded-xl border border-border bg-card shadow-sm md:mx-6 md:mb-4">
+              {/* Fila siempre visible: objetivo resumido + acciones */}
+              <div className="flex items-center gap-3 p-3 md:p-4">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                    <Target className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <p className="truncate text-sm leading-snug">{sprintActivo.objetivo}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-9 gap-1.5"
+                    onClick={() => setAddTaskOpen(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Agregar tarea</span>
+                  </Button>
+                  {/* Toggle — solo visible en mobile */}
+                  <button
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted md:hidden"
+                    onClick={() => setSprintInfoColapsado((v) => !v)}
+                    aria-label={sprintInfoColapsado ? "Ver detalles" : "Ocultar detalles"}
+                  >
+                    <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", !sprintInfoColapsado && "rotate-180")} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Detalles expandidos: siempre en desktop, toggle en mobile */}
+              <div className={cn("border-t border-border px-4 pb-4 pt-3 md:block", sprintInfoColapsado ? "hidden" : "block")}>
+                <div className="flex flex-col gap-3">
                   <div className="flex items-start gap-2.5">
                     <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10">
                       <Target className="h-3.5 w-3.5 text-primary" />
@@ -642,8 +681,6 @@ export function SprintsTab({ projectId }: { projectId: string }) {
                       <p className="mt-0.5 text-sm leading-snug">{sprintActivo.objetivo}</p>
                     </div>
                   </div>
-
-                  {/* Resumen */}
                   {sprintActivo.resumen && (
                     <div className="flex items-start gap-2.5">
                       <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted">
@@ -656,84 +693,73 @@ export function SprintsTab({ projectId }: { projectId: string }) {
                     </div>
                   )}
                 </div>
-
-                {/* Agregar tarea */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-10 shrink-0 gap-1.5"
-                  onClick={() => setAddTaskOpen(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar tarea
-                </Button>
               </div>
             </div>
           )}
 
-          {/* Kanban */}
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="flex gap-4 overflow-x-auto p-4">
-              {columnas.map((col) => (
-                <Columna
-                  key={col.id}
-                  col={col}
-                  tareas={tareasPorEstado(col.id)}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
+          {/* Kanban — flex-1 para que las columnas llenen el espacio restante */}
+          <div className="flex min-h-0 flex-1 flex-col">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="flex-1 overflow-x-auto">
+                <div className="flex h-full min-h-[300px] gap-4 px-4 pb-4 pt-2">
+                  {columnas.map((col) => (
+                    <Columna
+                      key={col.id}
+                      col={col}
+                      tareas={tareasPorEstado(col.id)}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            {/* Ghost mientras se arrastra */}
-            <DragOverlay>
-              {tareaActiva && (
-                <TareaCard
-                  tarea={tareaActiva}
-                  onEdit={() => {}}
-                  onDelete={() => {}}
-                  ghost
-                />
-              )}
-            </DragOverlay>
-          </DndContext>
-
-          {/* Finalizar sprint */}
-          {sprintActivo && !sprintYaFinalizado && todasDone && (
-            <div className="flex justify-end px-4 pb-4">
-              <Button
-                onClick={handleFinishSprint}
-                disabled={finishing}
-                className="gap-2"
-              >
-                {finishing ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                    Generando resumen...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    Finalizar sprint
-                  </>
+              {/* Ghost mientras se arrastra */}
+              <DragOverlay>
+                {tareaActiva && (
+                  <TareaCard
+                    tarea={tareaActiva}
+                    onEdit={() => {}}
+                    onDelete={() => {}}
+                    ghost
+                  />
                 )}
-              </Button>
-            </div>
-          )}
+              </DragOverlay>
+            </DndContext>
 
-          {sprintActivo && sprintYaFinalizado && (
-            <div className="flex justify-end px-4 pb-4">
-              <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
-                <CheckCircle2 className="h-4 w-4" />
-                Sprint finalizado
-              </span>
-            </div>
-          )}
+            {/* Finalizar sprint */}
+            {sprintActivo && !sprintYaFinalizado && todasDone && (
+              <div className="flex shrink-0 justify-end px-4 pb-4">
+                <Button onClick={handleFinishSprint} disabled={finishing} className="gap-2">
+                  {finishing ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                      Generando resumen...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      Finalizar sprint
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {sprintActivo && sprintYaFinalizado && (
+              <div className="flex shrink-0 justify-end px-4 pb-4">
+                <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Sprint finalizado
+                </span>
+              </div>
+            )}
+          </div>
         </>
       )}
 
