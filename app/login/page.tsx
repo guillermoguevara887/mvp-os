@@ -48,47 +48,55 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-6">
+    <main className="flex min-h-svh items-center justify-center bg-background px-4 py-8">
       <Card className="w-full max-w-md shadow-md">
-        <CardHeader className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <FolderKanban className="h-6 w-6 text-primary" />
+        <CardHeader className="flex flex-col items-center gap-3 pb-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+            <FolderKanban className="h-7 w-7 text-primary" />
           </div>
-
-          <CardTitle className="text-center">
-            Acceso a MVPOS
-          </CardTitle>
+          <div className="space-y-1 text-center">
+            <CardTitle>Acceso a MVPOS</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Inicia sesión o crea tu cuenta para continuar
+            </p>
+          </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <Input
             type="email"
             placeholder="Correo electrónico"
+            className="h-11"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            suppressHydrationWarning
           />
 
           <Input
             type="password"
             placeholder="Contraseña"
+            className="h-11"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            suppressHydrationWarning
           />
 
-          <Button className="w-full" onClick={handleSignUp}>
-            Crear cuenta
-          </Button>
+          <div className="space-y-2 pt-1">
+            <Button className="h-11 w-full" onClick={handleSignIn}>
+              Iniciar sesión
+            </Button>
 
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleSignIn}
-          >
-            Iniciar sesión
-          </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-full"
+              onClick={handleSignUp}
+            >
+              Crear cuenta
+            </Button>
+          </div>
 
           {mensaje && (
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="rounded-md bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
               {mensaje}
             </p>
           )}

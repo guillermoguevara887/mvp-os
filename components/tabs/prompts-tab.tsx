@@ -90,9 +90,9 @@ export function PromptsTab() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4 md:p-6 md:space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Prompts del Proyecto</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -132,7 +132,7 @@ export function PromptsTab() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 gap-1.5"
+                    className="h-10 gap-1.5"
                     onClick={() => handleCopiar(prompt)}
                   >
                     {copiado === prompt.id ? (
@@ -150,7 +150,7 @@ export function PromptsTab() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-10 w-10 p-0"
                     onClick={() => abrirEditar(prompt)}
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -158,7 +158,7 @@ export function PromptsTab() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    className="h-10 w-10 p-0 text-destructive hover:text-destructive"
                     onClick={() => setDialogoEliminar(prompt)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

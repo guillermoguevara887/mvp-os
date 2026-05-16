@@ -129,8 +129,8 @@ export function ApiTab() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="p-4 md:p-6">
+        <div className="mb-4 md:mb-6">
           <h2 className="text-lg font-semibold text-foreground">Referencia de API</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Endpoints disponibles para integrar MVPOS en tu flujo de trabajo
@@ -154,7 +154,7 @@ export function ApiTab() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-2 h-7 w-7"
+                    className="absolute right-2 top-2 h-9 w-9"
                     onClick={() => copiarAlPortapapeles(endpoint.ejemplo)}
                   >
                     <Copy className="h-3.5 w-3.5" />
