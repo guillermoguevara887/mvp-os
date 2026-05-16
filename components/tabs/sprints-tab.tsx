@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sparkles, Pencil, Trash2, GripVertical } from "lucide-react"
+import { Sparkles, Pencil, Trash2, GripVertical, Plus, Target, AlignLeft, CheckCircle2 } from "lucide-react"
+import { AddTaskDialog } from "@/components/tabs/sprints/add-task-dialog"
 import { cn } from "@/lib/utils"
 import {
   DndContext,
@@ -187,18 +188,18 @@ function TareaCard({
               </div>
             </div>
 
-            {/* Acciones */}
-            <div className="flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            {/* Acciones: siempre visibles en mobile, aparecen al hover en desktop */}
+            <div className="flex flex-col gap-1 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
               <button
                 onClick={() => onEdit(tarea)}
-                className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="rounded p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
                 title="Editar"
               >
                 <Pencil className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => onDelete(tarea.id)}
-                className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                className="rounded p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                 title="Eliminar"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -280,6 +281,9 @@ export function SprintsTab({ projectId }: { projectId: string }) {
   const [activeId, setActiveId]           = useState<string | null>(null)
   const [tareaEditando, setTareaEditando] = useState<Tarea | null>(null)
   const [editForm, setEditForm]           = useState<Tarea | null>(null)
+  const [addTaskOpen, setAddTaskOpen]     = useState(false)
+  const [completedSprintIds, setCompletedSprintIds] = useState<Set<string>>(new Set())
+  const [finishing, setFinishing]         = useState(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   /* ===== CARGAR SPRINTS EXISTENTES ===== */
@@ -330,6 +334,16 @@ export function SprintsTab({ projectId }: { projectId: string }) {
 
         setSprints(mapped)
         setSprintActivo(mapped[0] ?? null)
+
+        // Load which sprints are already completed
+        const { data: completedData } = await supabase
+          .from("project_completed_sprints")
+          .select("sprint_id")
+          .eq("project_id", projectId)
+
+        if (completedData?.length) {
+          setCompletedSprintIds(new Set(completedData.map((c) => c.sprint_id)))
+        }
       } finally {
         setLoadingExisting(false)
       }
@@ -408,8 +422,8 @@ export function SprintsTab({ projectId }: { projectId: string }) {
     setActiveId(null)
     if (!over || !sprintActivo) return
 
-    const tareaId  = active.id as string
-    const overId   = over.id  as string
+    const tareaId = active.id as string
+    const overId  = over.id  as string
 
     let targetEstado: Tarea["estado"] | null = null
 
@@ -422,9 +436,30 @@ export function SprintsTab({ projectId }: { projectId: string }) {
 
     if (!targetEstado) return
 
+    const tareaActual = sprintActivo.tareas.find((t) => t.id === tareaId)
+    if (!tareaActual || tareaActual.estado === targetEstado) return
+
+    // Optimistic update
     updateTareasEnSprint((tareas) =>
       tareas.map((t) => t.id === tareaId ? { ...t, estado: targetEstado! } : t)
     )
+
+    // Persist to DB — revert on error
+    const estadoPrevio = tareaActual.estado
+    const supabase = createClient()
+    supabase
+      .from("project_sprint_tasks")
+      .update({ status: targetEstado })
+      .eq("id", tareaId)
+      .then(({ error }) => {
+        if (error) {
+          console.error("Error actualizando estado:", error.message)
+          // Revert optimistic update
+          updateTareasEnSprint((tareas) =>
+            tareas.map((t) => t.id === tareaId ? { ...t, estado: estadoPrevio } : t)
+          )
+        }
+      })
   }
 
   /* ===== EDIT ===== */
@@ -447,6 +482,39 @@ export function SprintsTab({ projectId }: { projectId: string }) {
     updateTareasEnSprint((tareas) => tareas.filter((t) => t.id !== tareaId))
   }
 
+  /* ===== ADD TASK ===== */
+
+  const handleTaskCreated = (newTarea: Tarea) => {
+    updateTareasEnSprint((tareas) => [...tareas, newTarea])
+  }
+
+  /* ===== FINISH SPRINT ===== */
+
+  const handleFinishSprint = async () => {
+    if (!sprintActivo || finishing) return
+    setFinishing(true)
+    setError(null)
+
+    try {
+      const res = await fetch(
+        `/api/projects/${projectId}/sprints/${sprintActivo.id}/complete`,
+        { method: "POST" }
+      )
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Error al finalizar el sprint")
+        return
+      }
+
+      setCompletedSprintIds((prev) => new Set([...prev, sprintActivo.id]))
+    } catch {
+      setError("Error de conexión al finalizar el sprint")
+    } finally {
+      setFinishing(false)
+    }
+  }
+
   /* ===== COMPUTED ===== */
 
   const tareasPorEstado = (estado: Tarea["estado"]) =>
@@ -456,13 +524,16 @@ export function SprintsTab({ projectId }: { projectId: string }) {
     ? sprintActivo?.tareas.find((t) => t.id === activeId) ?? null
     : null
 
+  const sprintYaFinalizado = sprintActivo ? completedSprintIds.has(sprintActivo.id) : false
+  const todasDone = !!sprintActivo?.tareas.length && sprintActivo.tareas.every((t) => t.estado === "done")
+
   /* ================= RENDER ================= */
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
         <h2 className="text-lg font-semibold">Sprints</h2>
         <Button
           onClick={handleGenerateSprints}
@@ -487,7 +558,7 @@ export function SprintsTab({ projectId }: { projectId: string }) {
 
       {/* ERROR */}
       {error && !loadingExisting && (
-        <div className="mx-6 mb-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+        <div className="mx-4 mb-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive md:mx-6">
           {error}
         </div>
       )}
@@ -541,13 +612,13 @@ export function SprintsTab({ projectId }: { projectId: string }) {
       {!generating && !loadingExisting && (
         <>
           {/* Sprint selector */}
-          <div className="flex gap-2 px-6 pb-4">
+          <div className="flex flex-wrap gap-2 px-4 pb-3 md:px-6 md:pb-4">
             {sprints.map((sprint) => (
               <button
                 key={sprint.id}
                 onClick={() => setSprintActivo(sprint)}
                 className={cn(
-                  "rounded-full border px-4 py-1 text-sm transition-colors",
+                  "min-h-[44px] rounded-full border px-4 py-2 text-sm transition-colors",
                   sprintActivo?.id === sprint.id ? "bg-foreground text-background" : "bg-muted hover:bg-muted/80"
                 )}
               >
@@ -556,16 +627,46 @@ export function SprintsTab({ projectId }: { projectId: string }) {
             ))}
           </div>
 
-          {/* Meta */}
+          {/* Sprint header card */}
           {sprintActivo && (
-            <div className="flex gap-6 px-6 pb-4 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Objetivo</p>
-                <p>{sprintActivo.objetivo}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Resumen</p>
-                <p>{sprintActivo.resumen}</p>
+            <div className="mx-4 mb-3 rounded-xl border border-border bg-card p-4 shadow-sm md:mx-6 md:mb-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-1 flex-col gap-3 min-w-0">
+                  {/* Objetivo */}
+                  <div className="flex items-start gap-2.5">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                      <Target className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Objetivo</p>
+                      <p className="mt-0.5 text-sm leading-snug">{sprintActivo.objetivo}</p>
+                    </div>
+                  </div>
+
+                  {/* Resumen */}
+                  {sprintActivo.resumen && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted">
+                        <AlignLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resumen</p>
+                        <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{sprintActivo.resumen}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Agregar tarea */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-10 shrink-0 gap-1.5"
+                  onClick={() => setAddTaskOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Agregar tarea
+                </Button>
               </div>
             </div>
           )}
@@ -601,7 +702,50 @@ export function SprintsTab({ projectId }: { projectId: string }) {
               )}
             </DragOverlay>
           </DndContext>
+
+          {/* Finalizar sprint */}
+          {sprintActivo && !sprintYaFinalizado && todasDone && (
+            <div className="flex justify-end px-4 pb-4">
+              <Button
+                onClick={handleFinishSprint}
+                disabled={finishing}
+                className="gap-2"
+              >
+                {finishing ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                    Generando resumen...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Finalizar sprint
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {sprintActivo && sprintYaFinalizado && (
+            <div className="flex justify-end px-4 pb-4">
+              <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
+                <CheckCircle2 className="h-4 w-4" />
+                Sprint finalizado
+              </span>
+            </div>
+          )}
         </>
+      )}
+
+      {/* ADD TASK DIALOG */}
+      {sprintActivo && (
+        <AddTaskDialog
+          open={addTaskOpen}
+          onOpenChange={setAddTaskOpen}
+          projectId={projectId}
+          sprintId={sprintActivo.id}
+          onTaskCreated={handleTaskCreated}
+        />
       )}
 
       {/* EDIT DIALOG */}

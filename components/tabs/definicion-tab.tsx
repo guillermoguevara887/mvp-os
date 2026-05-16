@@ -151,7 +151,7 @@ export function DefinicionTab({ proyecto, onTechStackChanged }: DefinicionTabPro
   return (
     <>
     <ScrollArea className="h-full">
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="grid gap-6">
 
           {/* Problema */}
@@ -259,7 +259,7 @@ export function DefinicionTab({ proyecto, onTechStackChanged }: DefinicionTabPro
                       <button
                         onClick={() => handleRemove(tech)}
                         disabled={saving}
-                        className="ml-1 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                        className="ml-1 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
                         title={`Eliminar ${tech}`}
                       >
                         <X className="h-3 w-3" />
@@ -279,15 +279,15 @@ export function DefinicionTab({ proyecto, onTechStackChanged }: DefinicionTabPro
                           if (e.key === "Escape") { setAddingTech(false); setNewTech("") }
                         }}
                         placeholder="Ej: Prisma"
-                        className="h-8 w-36 text-sm"
+                        className="h-10 w-full sm:w-40 text-sm"
                       />
-                      <Button size="sm" className="h-8" onClick={handleAdd} disabled={!newTech.trim()}>
+                      <Button size="sm" className="h-10" onClick={handleAdd} disabled={!newTech.trim()}>
                         Agregar
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8"
+                        className="h-10"
                         onClick={() => { setAddingTech(false); setNewTech("") }}
                       >
                         Cancelar
@@ -297,7 +297,7 @@ export function DefinicionTab({ proyecto, onTechStackChanged }: DefinicionTabPro
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-7 gap-1 text-xs"
+                      className="h-9 gap-1.5 text-xs"
                       onClick={() => setAddingTech(true)}
                       disabled={saving || !aiLoaded}
                     >
