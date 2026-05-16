@@ -11,13 +11,14 @@ export function UserMenu() {
 
   return (
     <div className="flex items-center justify-between gap-2 border-t p-3">
-      <div className="text-sm text-muted-foreground truncate">
+      <div className="min-w-0 text-sm text-muted-foreground truncate">
         {user?.email}
       </div>
 
       <Button
         variant="outline"
         size="sm"
+        className="h-9 shrink-0"
         onClick={logout}
       >
         Salir

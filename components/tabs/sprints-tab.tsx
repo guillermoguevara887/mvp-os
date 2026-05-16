@@ -750,78 +750,81 @@ export function SprintsTab({ projectId }: { projectId: string }) {
 
       {/* EDIT DIALOG */}
       <Dialog open={!!tareaEditando} onOpenChange={(open) => { if (!open) { setTareaEditando(null); setEditForm(null) } }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[90dvh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
+          <DialogHeader className="shrink-0 px-6 pb-4 pt-6">
             <DialogTitle>Editar tarea</DialogTitle>
           </DialogHeader>
 
           {editForm && (
-            <div className="flex flex-col gap-4 py-2">
-              <div className="flex flex-col gap-1.5">
-                <Label>Título</Label>
-                <Input
-                  value={editForm.titulo}
-                  onChange={(e) => setEditForm({ ...editForm, titulo: e.target.value })}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label>Descripción</Label>
-                <Textarea
-                  value={editForm.descripcion}
-                  rows={3}
-                  onChange={(e) => setEditForm({ ...editForm, descripcion: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex-1 overflow-y-auto px-6 pb-2">
+              <div className="flex flex-col gap-4 py-2">
                 <div className="flex flex-col gap-1.5">
-                  <Label>Prioridad</Label>
-                  <Select
-                    value={editForm.prioridad}
-                    onValueChange={(v) => setEditForm({ ...editForm, prioridad: v as Tarea["prioridad"] })}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="alta">Alta</SelectItem>
-                      <SelectItem value="media">Media</SelectItem>
-                      <SelectItem value="baja">Baja</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Título</Label>
+                  <Input
+                    className="h-11"
+                    value={editForm.titulo}
+                    onChange={(e) => setEditForm({ ...editForm, titulo: e.target.value })}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Label>Estado</Label>
-                  <Select
-                    value={editForm.estado}
-                    onValueChange={(v) => setEditForm({ ...editForm, estado: v as Tarea["estado"] })}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todo">Por Hacer</SelectItem>
-                      <SelectItem value="in-progress">En Progreso</SelectItem>
-                      <SelectItem value="done">Completado</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Descripción</Label>
+                  <Textarea
+                    value={editForm.descripcion}
+                    rows={3}
+                    onChange={(e) => setEditForm({ ...editForm, descripcion: e.target.value })}
+                  />
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-1.5">
-                <Label>Criterios de aceptación</Label>
-                <Textarea
-                  value={editForm.explicacion ?? ""}
-                  rows={2}
-                  onChange={(e) => setEditForm({ ...editForm, explicacion: e.target.value })}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Prioridad</Label>
+                    <Select
+                      value={editForm.prioridad}
+                      onValueChange={(v) => setEditForm({ ...editForm, prioridad: v as Tarea["prioridad"] })}
+                    >
+                      <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="alta">Alta</SelectItem>
+                        <SelectItem value="media">Media</SelectItem>
+                        <SelectItem value="baja">Baja</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Estado</Label>
+                    <Select
+                      value={editForm.estado}
+                      onValueChange={(v) => setEditForm({ ...editForm, estado: v as Tarea["estado"] })}
+                    >
+                      <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todo">Por Hacer</SelectItem>
+                        <SelectItem value="in-progress">En Progreso</SelectItem>
+                        <SelectItem value="done">Completado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <Label>Criterios de aceptación</Label>
+                  <Textarea
+                    value={editForm.explicacion ?? ""}
+                    rows={2}
+                    onChange={(e) => setEditForm({ ...editForm, explicacion: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setTareaEditando(null); setEditForm(null) }}>
+          <DialogFooter className="shrink-0 border-t border-border px-6 py-4">
+            <Button variant="outline" className="h-11 w-full sm:w-auto" onClick={() => { setTareaEditando(null); setEditForm(null) }}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveEdit}>Guardar</Button>
+            <Button className="h-11 w-full sm:w-auto" onClick={handleSaveEdit}>Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
